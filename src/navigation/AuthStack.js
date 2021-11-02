@@ -6,6 +6,8 @@ import Onboardscreen from '../pages/OnboardScreen';
 import Signupscreen from '../pages/SignupScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { NavigationContainer } from '@react-navigation/native';
 
 const AppStack = createNativeStackNavigator();
 
@@ -54,8 +56,7 @@ const AuthStack = () => {
               elevation: 0,
               borderBottomWidth: 0,
               backgroundColor: '#f9fafd',
-            },
-            
+            },         
           })}
           />
     </AppStack.Navigator>

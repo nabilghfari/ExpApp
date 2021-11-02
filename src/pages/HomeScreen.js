@@ -1,30 +1,55 @@
-import React, { useContext } from 'react';
-import {View, StyleSheet, Text} from 'react-native';
-import Formbutton from '../components/FormButton';
-import { AuthContext } from '../navigation/AuthProvider';
+import React from 'react';
+import { ScrollView, FlatList} from 'react-native';
+import { Container } from '../styles/FeedStyles';
+import Postcard from '../components/PostCard';
+
+const Posts = [
+    {
+        id: '1',
+        userName: 'John Doe',
+        userImg: require('../assets/users/user-1.jpg'),
+        postTime: '4 hours ago',
+        post: 'Hello, lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et',
+        postImg: require('../assets/posts/post-img-1.jpg'),
+        liked: true,
+        likes: '29',
+        comments: '5'
+    },
+    {
+        id: '2',
+        userName: 'Doe Foe',
+        userImg: require('../assets/users/user-2.jpg'),
+        postTime: '8 hours ago',
+        post: 'Olleh, lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et',
+        postImg: 'none',
+        liked: false,
+        likes: '9',
+        comments: '1'
+    },
+    {
+        id: '3',
+        userName: 'Will Doe',
+        userImg: require('../assets/users/user-3.jpg'),
+        postTime: '1 days ago',
+        post: 'こんにちは, lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et',
+        postImg: require('../assets/posts/post-img-3.jpg'),
+        liked: true,
+        likes: '9',
+        comments: '11'
+    },
+]
 
 const Homescreen = () => {
-    const {user, logout} = useContext(AuthContext);
-    return (
-        <View style={styles.container}>
-            <Text style={styles.txt}>Hello {user.uid}</Text>
-            <Formbutton buttonTitle='Logout' onPress={() => logout()}/>
-        </View>
+    return(
+        <Container>
+            <FlatList
+                data={Posts}
+                renderItem={({item}) => <Postcard item={item}/> }
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+            />
+        </Container>
     );
 }
-
-const styles = StyleSheet.create({
-    container:{
-        backgroundColor: '#f9fafd',
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    txt:{
-        fontSize: 20,
-        color: '#666666'
-    },
-})
 
 export default Homescreen;
