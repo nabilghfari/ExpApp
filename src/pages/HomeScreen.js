@@ -1,7 +1,9 @@
-import React from 'react';
-import { ScrollView, FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { ScrollView, FlatList, Alert} from 'react-native';
 import { Container } from '../styles/FeedStyles';
 import Postcard from '../components/PostCard';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 const Posts = [
     {
@@ -40,11 +42,103 @@ const Posts = [
 ]
 
 const Homescreen = () => {
+
+    const [posts, setPosts] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [deleted, setDeleted] = useState(false);
+
+    const fetchPost = async () => {
+        try{
+            const list = [];
+
+            await firestore()
+            .collection('posts')
+            .orderBy('postTime', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach(doc => {
+                    const {userId, post, postImg, postTime, likes, comments} = doc.data();
+                    list.push({
+                        id: doc.id,
+                        userId,
+                        userName: 'Mr. Placehoder',
+                        userImg: 'https://lh3.googleusercontent.com/ogw/ADea4I4ktkw9sxnesXYbuKy158muKnOFvVRt93OZgVogqA=s83-c-mo',
+                        postTime,
+                        post,
+                        postImg,
+                        liked: false,
+                        likes,
+                        comments
+                    });
+                })
+            })
+            //console.log('Posts: ', list);
+            setPosts(list);
+            if (loading == true){
+                setLoading(false);
+            }
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+
+    useEffect(() => {
+        fetchPost();
+    }, [])
+
+    useEffect(() => {
+        fetchPost();
+        setDeleted(false);
+    }, [deleted])
+
+    const deletePost = (postId) => {
+        firestore()
+        .collection('posts')
+        .doc(postId)
+        .get()
+        .then(documentSnapshot => {
+            if (documentSnapshot.exists){
+                const {postImg} = documentSnapshot.data();
+
+                if (postImg != null){
+                    const storageRef = storage().refFromURL(postImg);
+                    const imageRef = storage().ref(storageRef.fullPath);
+                    imageRef.delete()
+                    .then(()=>{
+                        console.log(`${postImg} has been deleted`);
+                        deleteFirestoreData(postId);
+                        setDeleted(true);
+                    })
+                    .catch((e)=>{
+                        console.log(e);
+                    })
+                }
+                else{
+                    deleteFirestoreData(postId);
+                }
+            }
+        })
+    }
+
+    const deleteFirestoreData = (postId) => {
+        firestore()
+        .collection('posts')
+        .doc(postId)
+        .delete()
+        .then(()=>{
+            Alert.alert('Post Deleted','Your Post Deleted!');
+        })
+        .catch((e)=>{
+            console.log(e);
+        })
+    }
+
     return(
         <Container>
             <FlatList
-                data={Posts}
-                renderItem={({item}) => <Postcard item={item}/> }
+                data={posts}
+                renderItem={({item}) => <Postcard item={item} onDelete={deletePost} /> }
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
             />
